@@ -120,7 +120,6 @@
             </aside>
 
             <!-- Right Panel: Canvas -->
-            <!-- Right Panel: Canvas -->
             <main class="flex-1 bg-background-light dark:bg-background-dark corkboard-bg overflow-auto relative">
                 <div id="canvas" class="relative w-full min-h-full p-8">
                     <!-- Empty State -->
@@ -163,17 +162,26 @@
         // Set today's date as default
         document.getElementById('dateInput').valueAsDate = new Date();
 
-        // Load pins from storage
-        function loadPins() {
-            const stored = window.pinsData || [];
-            pins = stored;
+        // Load pins from persistent storage
+        async function loadPins() {
+            try {
+                const result = await window.storage.get('rejection-pins');
+                pins = result ? JSON.parse(result.value) : [];
+            } catch (error) {
+                console.log('No existing pins found, starting fresh');
+                pins = [];
+            }
             renderPins();
         }
 
-        // Save pins to in-memory storage
-        function savePins() {
-            window.pinsData = pins;
-            updatePinCount();
+        // Save pins to persistent storage
+        async function savePins() {
+            try {
+                await window.storage.set('rejection-pins', JSON.stringify(pins));
+                updatePinCount();
+            } catch (error) {
+                console.error('Failed to save pins:', error);
+            }
         }
 
         // Update pin count display
@@ -304,7 +312,7 @@
         }
 
         // Stop dragging
-        function stopDrag(e) {
+        async function stopDrag(e) {
             if (!draggedPin) return;
 
             draggedPin.style.cursor = 'grab';
@@ -316,7 +324,7 @@
             if (pin) {
                 pin.x = parseInt(draggedPin.style.left);
                 pin.y = parseInt(draggedPin.style.top);
-                savePins();
+                await savePins();
             }
 
             draggedPin = null;
@@ -328,7 +336,7 @@
         }
 
         // Create new pin
-        document.getElementById('rejectionForm').addEventListener('submit', (e) => {
+        document.getElementById('rejectionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const company = document.getElementById('companyInput').value.trim();
@@ -349,7 +357,7 @@
             };
 
             pins.push(pin);
-            savePins();
+            await savePins();
             renderPins();
 
             // Reset form
@@ -359,19 +367,19 @@
         });
 
         // Delete pin
-        function deletePin(id) {
+        async function deletePin(id) {
             if (confirm('Remove this pin from your board?')) {
                 pins = pins.filter(p => p.id !== id);
-                savePins();
+                await savePins();
                 renderPins();
             }
         }
 
         // Clear all pins
-        document.getElementById('clearBtn').addEventListener('click', () => {
+        document.getElementById('clearBtn').addEventListener('click', async () => {
             if (pins.length > 0 && confirm('Clear all pins from your board? This cannot be undone.')) {
                 pins = [];
-                savePins();
+                await savePins();
                 renderPins();
             }
         });
