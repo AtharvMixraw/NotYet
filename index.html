@@ -1,392 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Rejection Tracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#1A1A1A",
-                        "background-light": "#f7f7f7",
-                        "background-dark": "#191919"
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"]
-                    }
-                }
-            }
-        };
-    </script>
+  <meta charset="UTF-8" />
+  <title>Rejection Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        .corkboard-bg {
-            background-image:
-                linear-gradient(rgba(0, 0, 0, .03) 2px, transparent 2px),
-                linear-gradient(90deg, rgba(0, 0, 0, .03) 2px, transparent 2px),
-                linear-gradient(rgba(0, 0, 0, .02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 0, 0, .02) 1px, transparent 1px);
-            background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
-            background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
-        }
-
-        .pin {
-            user-select: none;
-            touch-action: none;
-        }
-    </style>
+  <style>
+    body { font-family: Inter, sans-serif; }
+    .board-bg {
+      background:
+        linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .pin {
+      user-select: none;
+      cursor: grab;
+    }
+  </style>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark font-display">
-    <div class="relative flex h-screen w-full flex-col overflow-hidden">
-        <div class="flex h-full w-full">
-            <!-- Left Panel: Form -->
-            <aside
-                class="w-full max-w-md flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark p-8 flex flex-col justify-between overflow-y-auto">
-                <div>
-                    <div class="flex min-w-72 flex-col gap-2 mb-8">
-                        <h1
-                            class="text-[#111418] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
-                            Log a Rejection</h1>
-                        <p class="text-[#617289] dark:text-gray-400 text-base font-normal leading-normal">Add a new pin
-                            to your board.</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-500 mt-2" id="pinCount">0 pins on board</p>
-                    </div>
-                    <form id="rejectionForm" class="flex flex-col gap-6">
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] dark:text-gray-200 text-base font-medium leading-normal pb-2">
-                                Company</p>
-                            <input id="companyInput" required
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary dark:focus:border-primary h-14 placeholder:text-[#617289] dark:placeholder:text-gray-500 p-[15px] text-base font-normal leading-normal"
-                                placeholder="e.g., Acme Corp" />
-                        </label>
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] dark:text-gray-200 text-base font-medium leading-normal pb-2">Role
-                            </p>
-                            <input id="roleInput" required
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary dark:focus:border-primary h-14 placeholder:text-[#617289] dark:placeholder:text-gray-500 p-[15px] text-base font-normal leading-normal"
-                                placeholder="e.g., Product Designer" />
-                        </label>
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] dark:text-gray-200 text-base font-medium leading-normal pb-2">
-                                Rejection Date</p>
-                            <input id="dateInput" required type="date"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary dark:focus:border-primary h-14 placeholder:text-[#617289] dark:placeholder:text-gray-500 p-[15px] text-base font-normal leading-normal" />
-                        </label>
-                        <div class="flex flex-col gap-2">
-                            <p class="text-[#111418] dark:text-gray-200 text-base font-medium leading-normal">Pin Color
-                            </p>
-                            <div class="flex gap-3">
-                                <button type="button"
-                                    class="color-btn size-8 rounded-full bg-[#FFF380] border-2 border-primary ring-2 ring-offset-2 ring-primary ring-offset-white dark:ring-offset-background-dark"
-                                    data-color="#FFF380"></button>
-                                <button type="button"
-                                    class="color-btn size-8 rounded-full bg-[#FFC0CB] border-2 border-transparent"
-                                    data-color="#FFC0CB"></button>
-                                <button type="button"
-                                    class="color-btn size-8 rounded-full bg-[#87CEEB] border-2 border-transparent"
-                                    data-color="#87CEEB"></button>
-                                <button type="button"
-                                    class="color-btn size-8 rounded-full bg-[#98FF98] border-2 border-transparent"
-                                    data-color="#98FF98"></button>
-                                <button type="button"
-                                    class="color-btn size-8 rounded-full bg-[#FFDAB9] border-2 border-transparent"
-                                    data-color="#FFDAB9"></button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="flex flex-col gap-3 mt-4">
-                    <button id="createBtn" type="submit" form="rejectionForm"
-                        class="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
-                        <span class="truncate">Create Pin</span>
-                    </button>
-                    <button id="clearBtn" type="button"
-                        class="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold leading-normal hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                        Clear All Pins
-                    </button>
-                </div>
-            </aside>
+<body class="bg-gray-100">
+<div class="flex h-screen">
 
-            <!-- Right Panel: Canvas -->
-            <main class="flex-1 bg-background-light dark:bg-background-dark corkboard-bg overflow-auto relative">
-                <div id="canvas" class="relative w-full min-h-full p-8">
-                    <!-- Empty State -->
-                    <div id="emptyState" class="w-full h-screen flex items-center justify-center">
-                        <div class="text-center">
-                            <span
-                                class="material-symbols-outlined text-7xl text-gray-300 dark:text-gray-600">dashboard_customize</span>
-                            <h2 class="mt-4 text-xl font-semibold text-gray-700 dark:text-gray-300">Your board is empty
-                            </h2>
-                            <p class="mt-1 text-gray-500 dark:text-gray-400">Add your first pin to get started!</p>
-                        </div>
-                    </div>
-                    <!-- Pins will be added here -->
-                </div>
-            </main>
+  <!-- LEFT PANEL -->
+  <aside class="w-80 bg-white border-r p-6 flex flex-col gap-4">
+    <h1 class="text-2xl font-extrabold">Rejection Board</h1>
 
-        </div>
-    </div>
+    <form id="form" class="flex flex-col gap-3">
+      <input id="company" placeholder="Company" class="border rounded px-3 py-2" required />
+      <input id="role" placeholder="Role" class="border rounded px-3 py-2" required />
+      <input id="date" type="date" class="border rounded px-3 py-2" required />
+      <button class="bg-black text-white rounded py-2 font-semibold">Add Pin</button>
+    </form>
 
-    <script>
-        let pins = [];
-        let selectedColor = '#FFF380';
-        let draggedPin = null;
-        let offsetX = 0;
-        let offsetY = 0;
+    <hr>
 
-        // Color selection
-        document.querySelectorAll('.color-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.color-btn').forEach(b => {
-                    b.classList.remove('border-primary', 'ring-2', 'ring-offset-2', 'ring-primary');
-                    b.classList.add('border-transparent');
-                });
-                btn.classList.remove('border-transparent');
-                btn.classList.add('border-primary', 'ring-2', 'ring-offset-2', 'ring-primary');
-                selectedColor = btn.dataset.color;
-            });
-        });
+    <input id="exportName" placeholder="Your name (watermark)"
+      class="border rounded px-3 py-2 text-sm" />
 
-        // Set today's date as default
-        document.getElementById('dateInput').valueAsDate = new Date();
+    <button id="exportBtn"
+      class="bg-gray-900 text-white rounded py-2 text-sm font-semibold">
+      Export Board
+    </button>
 
-        // Load pins from persistent storage
-        async function loadPins() {
-            try {
-                const result = await window.storage.get('rejection-pins');
-                pins = result ? JSON.parse(result.value) : [];
-            } catch (error) {
-                console.log('No existing pins found, starting fresh');
-                pins = [];
-            }
-            renderPins();
-        }
+    <button id="clearBtn"
+      class="border rounded py-2 text-sm font-semibold">
+      Clear Board
+    </button>
 
-        // Save pins to persistent storage
-        async function savePins() {
-            try {
-                await window.storage.set('rejection-pins', JSON.stringify(pins));
-                updatePinCount();
-            } catch (error) {
-                console.error('Failed to save pins:', error);
-            }
-        }
+    <p id="count" class="text-xs text-gray-500 mt-auto"></p>
+  </aside>
 
-        // Update pin count display
-        function updatePinCount() {
-            document.getElementById('pinCount').textContent = `${pins.length} pin${pins.length !== 1 ? 's' : ''} on board`;
-        }
+  <!-- BOARD -->
+  <main class="flex-1 board-bg overflow-auto relative">
+    <div id="board" class="relative w-full h-full p-6"></div>
+  </main>
 
-        // Generate random position
-        function getRandomPosition() {
-            const canvas = document.getElementById('canvas');
-            const maxX = canvas.clientWidth - 260;
-            const maxY = canvas.clientHeight - 200;
-            return {
-                x: Math.random() * Math.max(maxX, 100) + 20,
-                y: Math.random() * Math.max(maxY, 100) + 20
-            };
-        }
+</div>
 
-        // Get dark mode color variant
-        function getDarkColor(color) {
-            const colorMap = {
-                '#FFF380': '#fde047',
-                '#FFC0CB': '#f9a8d4',
-                '#87CEEB': '#7dd3fc',
-                '#98FF98': '#86efac',
-                '#FFDAB9': '#fdba74'
-            };
-            return colorMap[color] || color;
-        }
+<script>
+  const board = document.getElementById("board");
+  const form = document.getElementById("form");
+  const countEl = document.getElementById("count");
 
-        // Create pin element
-        function createPinElement(pin) {
-            const isDark = document.documentElement.classList.contains('dark');
-            const pinColor = isDark ? getDarkColor(pin.color) : pin.color;
+  let pins = JSON.parse(localStorage.getItem("pins") || "[]");
+  let dragging = null, offsetX = 0, offsetY = 0;
 
-            const rotation = (Math.random() * 8 - 4).toFixed(1);
+  document.getElementById("date").valueAsDate = new Date();
 
-            const pinEl = document.createElement('div');
-            pinEl.className = 'pin group absolute w-60 h-48 p-4 rounded-lg shadow-lg hover:scale-105 hover:shadow-xl transition-all cursor-grab active:cursor-grabbing';
-            pinEl.style.backgroundColor = pinColor;
-            pinEl.style.left = pin.x + 'px';
-            pinEl.style.top = pin.y + 'px';
-            pinEl.style.transform = `rotate(${rotation}deg)`;
-            pinEl.dataset.id = pin.id;
+  function save() {
+    localStorage.setItem("pins", JSON.stringify(pins));
+    countEl.textContent = `${pins.length} pin(s)`;
+  }
 
-            pinEl.innerHTML = `
-                <div class="flex flex-col h-full">
-                    <h2 class="text-xl font-bold text-gray-800 line-clamp-2">${pin.company}</h2>
-                    <p class="text-gray-600 text-sm mt-1">${pin.role}</p>
-                    <p class="text-gray-500 text-xs mt-auto">${new Date(pin.date).toLocaleDateString()}</p>
-                    <button class="delete-btn absolute top-2 right-2 p-1 rounded-full bg-black/10 text-black/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/20">
-                        <span class="material-symbols-outlined text-base">close</span>
-                    </button>
-                </div>
-            `;
+  function render() {
+    board.innerHTML = "";
+    pins.forEach(p => board.appendChild(createPin(p)));
+    save();
+  }
 
-            // Delete button
-            pinEl.querySelector('.delete-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                deletePin(pin.id);
-            });
+  function createPin(pin) {
+    const el = document.createElement("div");
+    el.className = "pin absolute w-56 p-4 rounded-lg shadow bg-yellow-200";
+    el.style.left = pin.x + "px";
+    el.style.top = pin.y + "px";
+    el.dataset.id = pin.id;
 
-            // Drag functionality
-            pinEl.addEventListener('mousedown', startDrag);
-            pinEl.addEventListener('touchstart', startDrag);
+    el.innerHTML = `
+      <div class="font-bold">${pin.company}</div>
+      <div class="text-sm">${pin.role}</div>
+      <div class="text-xs mt-2">${pin.date}</div>
+      <button class="absolute top-1 right-1 text-xs">✕</button>
+    `;
 
-            return pinEl;
-        }
+    el.querySelector("button").onclick = e => {
+      e.stopPropagation();
+      pins = pins.filter(p => p.id !== pin.id);
+      render();
+    };
 
-        // Render all pins
-        function renderPins() {
-            const canvas = document.getElementById('canvas');
-            const emptyState = document.getElementById('emptyState');
+    el.onmousedown = e => startDrag(e, el);
+    return el;
+  }
 
-            // Remove existing pins
-            document.querySelectorAll('.pin').forEach(p => p.remove());
+  function startDrag(e, el) {
+    dragging = el;
+    const rect = el.getBoundingClientRect();
+    const boardRect = board.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    document.onmousemove = drag;
+    document.onmouseup = stopDrag;
+  }
 
-            if (pins.length === 0) {
-                emptyState.style.display = 'flex';
-            } else {
-                emptyState.style.display = 'none';
-                pins.forEach(pin => {
-                    canvas.appendChild(createPinElement(pin));
-                });
-            }
-            updatePinCount();
-        }
+  function drag(e) {
+    if (!dragging) return;
+    const r = board.getBoundingClientRect();
+    let x = e.clientX - r.left - offsetX;
+    let y = e.clientY - r.top - offsetY;
+    x = Math.max(0, Math.min(x, r.width - dragging.offsetWidth));
+    y = Math.max(0, Math.min(y, r.height - dragging.offsetHeight));
+    dragging.style.left = x + "px";
+    dragging.style.top = y + "px";
+  }
 
-        // Start dragging
-        function startDrag(e) {
-            e.preventDefault();
-            draggedPin = e.currentTarget;
-            draggedPin.style.cursor = 'grabbing';
-            draggedPin.style.zIndex = '1000';
+  function stopDrag() {
+    if (!dragging) return;
+    const pin = pins.find(p => p.id == dragging.dataset.id);
+    pin.x = parseInt(dragging.style.left);
+    pin.y = parseInt(dragging.style.top);
+    dragging = null;
+    save();
+    document.onmousemove = null;
+    document.onmouseup = null;
+  }
 
-            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+  form.onsubmit = e => {
+    e.preventDefault();
+    pins.push({
+      id: Date.now(),
+      company: company.value,
+      role: role.value,
+      date: date.value,
+      x: 40 + Math.random() * 300,
+      y: 40 + Math.random() * 300
+    });
+    form.reset();
+    date.valueAsDate = new Date();
+    render();
+  };
 
-            const rect = draggedPin.getBoundingClientRect();
-            offsetX = clientX - rect.left;
-            offsetY = clientY - rect.top;
+  clearBtn.onclick = () => {
+    if (confirm("Clear all pins?")) {
+      pins = [];
+      render();
+    }
+  };
 
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', stopDrag);
-            document.addEventListener('touchmove', drag);
-            document.addEventListener('touchend', stopDrag);
-        }
+  // ✅ CANVAS EXPORT (your function, enhanced)
+  exportBtn.onclick = () => {
+    const name = exportName.value.trim();
+    if (!name) return alert("Enter your name");
 
-        // Dragging
-        function drag(e) {
-            if (!draggedPin) return;
+    exportWithCanvas(name);
+  };
 
-            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+  function exportWithCanvas(name) {
+    const canvasEl = document.createElement("canvas");
+    const ctx = canvasEl.getContext("2d");
 
-            const canvas = document.getElementById('canvas');
-            const canvasRect = canvas.getBoundingClientRect();
+    const scale = 2;
+    const width = board.scrollWidth * scale;
+    const height = board.scrollHeight * scale;
 
-            let x = clientX - canvasRect.left - offsetX;
-            let y = clientY - canvasRect.top - offsetY;
+    canvasEl.width = width;
+    canvasEl.height = height;
 
-            // Keep pin within bounds
-            x = Math.max(0, Math.min(x, canvasRect.width - 260));
-            y = Math.max(0, Math.min(y, canvasRect.height - 200));
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "#f7f7f7";
+    ctx.fillRect(0, 0, width, height);
 
-            draggedPin.style.left = x + 'px';
-            draggedPin.style.top = y + 'px';
-        }
+    pins.forEach(p => {
+      ctx.fillStyle = "#fde047";
+      ctx.fillRect(p.x, p.y, 224, 120);
+      ctx.fillStyle = "#000";
+      ctx.font = "bold 14px Inter";
+      ctx.fillText(p.company, p.x + 8, p.y + 22);
+      ctx.font = "12px Inter";
+      ctx.fillText(p.role, p.x + 8, p.y + 40);
+      ctx.fillText(p.date, p.x + 8, p.y + 60);
+    });
 
-        // Stop dragging
-        async function stopDrag(e) {
-            if (!draggedPin) return;
+    ctx.font = "bold 18px Inter";
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.fillText(`Rejected but owned by ${name}`,
+      board.scrollWidth - 320,
+      board.scrollHeight - 20
+    );
 
-            draggedPin.style.cursor = 'grab';
-            draggedPin.style.zIndex = '';
+    const link = document.createElement("a");
+    link.download = "rejection-board.png";
+    link.href = canvasEl.toDataURL("image/png");
+    link.click();
+  }
 
-            // Update pin position in data
-            const pinId = draggedPin.dataset.id;
-            const pin = pins.find(p => p.id === pinId);
-            if (pin) {
-                pin.x = parseInt(draggedPin.style.left);
-                pin.y = parseInt(draggedPin.style.top);
-                await savePins();
-            }
-
-            draggedPin = null;
-
-            document.removeEventListener('mousemove', drag);
-            document.removeEventListener('mouseup', stopDrag);
-            document.removeEventListener('touchmove', drag);
-            document.removeEventListener('touchend', stopDrag);
-        }
-
-        // Create new pin
-        document.getElementById('rejectionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const company = document.getElementById('companyInput').value.trim();
-            const role = document.getElementById('roleInput').value.trim();
-            const date = document.getElementById('dateInput').value;
-
-            if (!company || !role || !date) return;
-
-            const position = getRandomPosition();
-            const pin = {
-                id: Date.now().toString(),
-                company,
-                role,
-                date,
-                color: selectedColor,
-                x: position.x,
-                y: position.y
-            };
-
-            pins.push(pin);
-            await savePins();
-            renderPins();
-
-            // Reset form
-            document.getElementById('companyInput').value = '';
-            document.getElementById('roleInput').value = '';
-            document.getElementById('dateInput').valueAsDate = new Date();
-        });
-
-        // Delete pin
-        async function deletePin(id) {
-            if (confirm('Remove this pin from your board?')) {
-                pins = pins.filter(p => p.id !== id);
-                await savePins();
-                renderPins();
-            }
-        }
-
-        // Clear all pins
-        document.getElementById('clearBtn').addEventListener('click', async () => {
-            if (pins.length > 0 && confirm('Clear all pins from your board? This cannot be undone.')) {
-                pins = [];
-                await savePins();
-                renderPins();
-            }
-        });
-
-        // Initialize
-        loadPins();
-    </script>
+  render();
+</script>
 </body>
-
 </html>
