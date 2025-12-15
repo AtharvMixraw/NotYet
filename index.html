@@ -34,6 +34,18 @@
       <input id="company" placeholder="Company" class="border rounded px-3 py-2" required />
       <input id="role" placeholder="Role" class="border rounded px-3 py-2" required />
       <input id="date" type="date" class="border rounded px-3 py-2" required />
+      
+      <div class="flex gap-2 flex-wrap">
+        <button type="button" class="color-btn w-8 h-8 rounded bg-yellow-200 border-2 border-gray-800" data-color="bg-yellow-200"></button>
+        <button type="button" class="color-btn w-8 h-8 rounded bg-pink-200 border-2 border-transparent" data-color="bg-pink-200"></button>
+        <button type="button" class="color-btn w-8 h-8 rounded bg-blue-200 border-2 border-transparent" data-color="bg-blue-200"></button>
+        <button type="button" class="color-btn w-8 h-8 rounded bg-green-200 border-2 border-transparent" data-color="bg-green-200"></button>
+        <button type="button" class="color-btn w-8 h-8 rounded bg-purple-200 border-2 border-transparent" data-color="bg-purple-200"></button>
+        <button type="button" class="color-btn w-8 h-8 rounded bg-orange-200 border-2 border-transparent" data-color="bg-orange-200"></button>
+        <button type="button" class="color-btn w-8 h-8 rounded bg-red-200 border-2 border-transparent" data-color="bg-red-200"></button>
+        <button type="button" class="color-btn w-8 h-8 rounded bg-cyan-200 border-2 border-transparent" data-color="bg-cyan-200"></button>
+      </div>
+      
       <button class="bg-black text-white rounded py-2 font-semibold">Add Pin</button>
     </form>
 
@@ -67,13 +79,22 @@
   const form = document.getElementById("form");
   const countEl = document.getElementById("count");
 
-  let pins = JSON.parse(localStorage.getItem("pins") || "[]");
+  let pins = [];
   let dragging = null, offsetX = 0, offsetY = 0;
+  let selectedColor = 'bg-yellow-200';
 
   document.getElementById("date").valueAsDate = new Date();
 
+  // Color selection
+  document.querySelectorAll('.color-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('border-gray-800'));
+      btn.classList.add('border-gray-800');
+      selectedColor = btn.dataset.color;
+    };
+  });
+
   function save() {
-    localStorage.setItem("pins", JSON.stringify(pins));
     countEl.textContent = `${pins.length} pin(s)`;
   }
 
@@ -85,7 +106,7 @@
 
   function createPin(pin) {
     const el = document.createElement("div");
-    el.className = "pin absolute w-56 p-4 rounded-lg shadow bg-yellow-200";
+    el.className = "pin absolute w-56 p-4 rounded-lg shadow " + pin.color;
     el.style.left = pin.x + "px";
     el.style.top = pin.y + "px";
     el.dataset.id = pin.id;
@@ -146,6 +167,7 @@
       company: company.value,
       role: role.value,
       date: date.value,
+      color: selectedColor,
       x: 40 + Math.random() * 300,
       y: 40 + Math.random() * 300
     });
@@ -161,7 +183,6 @@
     }
   };
 
-  // ✅ CANVAS EXPORT (your function, enhanced)
   exportBtn.onclick = () => {
     const name = exportName.value.trim();
     if (!name) return alert("Enter your name");
@@ -184,8 +205,19 @@
     ctx.fillStyle = "#f7f7f7";
     ctx.fillRect(0, 0, width, height);
 
+    const colorMap = {
+      'bg-yellow-200': '#fde047',
+      'bg-pink-200': '#fbcfe8',
+      'bg-blue-200': '#bfdbfe',
+      'bg-green-200': '#bbf7d0',
+      'bg-purple-200': '#e9d5ff',
+      'bg-orange-200': '#fed7aa',
+      'bg-red-200': '#fecaca',
+      'bg-cyan-200': '#a5f3fc'
+    };
+
     pins.forEach(p => {
-      ctx.fillStyle = "#fde047";
+      ctx.fillStyle = colorMap[p.color] || '#fde047';
       ctx.fillRect(p.x, p.y, 224, 120);
       ctx.fillStyle = "#000";
       ctx.font = "bold 14px Inter";
